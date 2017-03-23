@@ -1,0 +1,66 @@
+---
+# tasks file for mariadb-container-role
+- name: Uninstall mariadb-libs
+  yum: name="{{ item }}" state=absent
+  with_items:
+    - mariadb-libs
+
+
+- name: Download MySQL Package
+  yum: name="{{ mysql_repository }}"
+
+
+- name: Enbale version5.6 install
+  ini_file:
+    dest: /etc/yum.repos.d/mysql-community.repo
+    section: "{{ item.section }}"
+    option: enabled
+    value: "{{ item.value }}"
+    backup: yes
+  with_items:
+    - section: mysql56-community
+      value: 1
+    - section: mysql57-community
+      value: 0
+
+
+- name: Install MySQL5.6
+  yum:
+    name: "{{ item }}"
+    state: present
+    update_cache: no
+  with_items:
+    - mysql-community-server
+
+ 
+- name: Initialize MySQL
+  command:
+    /usr/bin/mysql_install_db --user=mysql
+
+
+- name: Template my.cnf.j2
+  template:
+    src: my.cnf.j2
+    dest: /etc/my.cnf
+    owner: root 
+    group: root
+    mode: 0644
+#  notify:
+#    - restart mysql
+
+
+- name: Install dumb init
+  get_url:
+    url: https://github.com/Yelp/dumb-init/releases/download/v1.2.0/dumb-init_1.2.0_amd64
+    dest: /usr/bin/dumb-init
+    owner: root
+    group: root
+    mode: 0775
+  when: 1 == ansible_env.ANSIBLE_CONTAINER
+
+
+- name: Start MySQL Service
+  service: name=mysqld enabled=yes state=started
+  when: 0 == ansible_env.ANSIBLE_CONTAINER
+
+

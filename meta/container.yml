@@ -1,0 +1,11 @@
+from: 'mysql:5.6'
+# entrypoint: [/usr/bin/entrypoint.sh]
+working_dir: /
+user: mysql
+command: [/usr/bin/dumb-init, mysqld]        
+expose:
+  - 3306
+dev_overrides:
+    volumes:
+      - "mysql-data:/var/lib/mysql:rw"
+      - "./init_sql:/docker-entrypoint-initdb.d"

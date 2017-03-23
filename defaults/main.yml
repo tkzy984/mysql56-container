@@ -1,0 +1,3 @@
+---
+# defaults file for mysql56-container-role
+mysql_repository: https://dev.mysql.com/get/mysql57-community-release-el7-11.noarch.rpm

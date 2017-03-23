@@ -1,0 +1,6 @@
+---
+# Handler to handle DB tier notifications
+
+- name: restart MySQL
+  service: name=mysqld state=restarted
+  when: not ansible_container
